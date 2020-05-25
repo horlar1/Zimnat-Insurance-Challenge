@@ -12,7 +12,7 @@ library(lubridate)
 # product_cnt = unique counts of products per policy
 # mean premium = average NPR PREMIUM per policy
 # min premium  = minimum NPR PREMIUM
-# principal_cnt = unique count of principals per policy
+# principal_cnt = unique count of principals per policy: last on feature importance might not be useful
 # family_cnt = counts of family per policy : NPH LASTNAME
 # location = unique location per policy
 # aegnt = agent location per policy
@@ -97,9 +97,9 @@ df = df %>% left_join(policy_Aggregate,by = "Policy ID") %>%
   ) 
   
 df$Policy_location_cnt = my.f2cnt(df,"policy_cnt","location")
-df = df %>%   filter(!`Lapse Year` %in% c('2017','2018'))
+df = df %>%   filter(!`Lapse Year` %in% c('2017','2018')) ## drop policies that lapsed in 2017 and 2018
 df= cbind(df,um$layout[1:48714,])
-df = df %>%  filter(in_Client_flag == 1)
+df = df %>%  filter(in_Client_flag == 1) ## drop all poicies not in client data
 
 #### SETTING TARGET AND ID'S
 label = df$label
@@ -129,7 +129,7 @@ df_test = cbind(df_test,um$layout[48715:nrow(um$layout),])
 ### CAN BE IMPROVED
 library(xgboost)
 
-dtrain = xgb.DMatrix(as.matrix(df_train), label=label2)
+dtrain = xgb.DMatrix(as.matrix(df_train), label=label)
 dtest = xgb.DMatrix(as.matrix(df_test[,colnames(df_train)]))
 
 ### PROBABLY NEEDS TUNING
